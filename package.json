@@ -1,0 +1,13 @@
+{
+	"name": "spotter-engine",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+        "express": "*",
+				"async": "*",
+				"request": "*",
+				"url": "*"
+	},
+	"author": "Antony Bello",
+	"date": "June 3, 2015"
+}
