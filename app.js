@@ -27,19 +27,19 @@ app.get('/', function(req,res) {
 
 app.post('/data', function(req, res) {
 
-    // Name of the button that the user has clicked
-    var buttonName = req.headers.clickedname;
-
-  	// Make a start and end date for our query string to the API.
-    var date = new Date();
-    var startDate = dateHelper.makeStartDateString(date); // One hour from current date
-    var currentDate = dateHelper.makeCurrentDateString(date);
-
-		var optionsArr = makeOptionsArr(buttonName, startDate, currentDate);
-
-		makeCalls(optionsArr, buttonName, function(response) {
-			res.status(201).send(response);
-		});
+	// Name of the button that the user has clicked
+	var buttonName = req.headers.clickedname;
+	
+	// Make a start and end date for our query string to the API.
+	var date = new Date();
+	var startDate = dateHelper.makeStartDateString(date); // One hour from current date
+	var currentDate = dateHelper.makeCurrentDateString(date);
+	
+	var optionsArr = makeOptionsArr(buttonName, startDate, currentDate);
+	
+	makeCalls(optionsArr, buttonName, function(response) {
+		res.status(201).send(response);
+	});
 
 });
 
@@ -55,7 +55,7 @@ app.post('/data', function(req, res) {
 var makeCalls = function(optionsArr, buttonName, callback) {
 
 	var fetch = function(option, callback) {
-		request(option, function(err, response, body) {
+	   	request(option, function(err, response, body) {
 			if (err) {
 				callback(err);
 			} else {
@@ -135,11 +135,11 @@ function makeDataStruct(button) {
 	var arr = [];
 	if (button === "pabutton") {
 		arr = [{"name":"Hamilton Avenue", "vacancy":""},
-					 {"name":"Ramona Street", "vacancy":""},
-					 {"name":"Bryant Street", "vacancy":""}];
+			 {"name":"Ramona Street", "vacancy":""},
+			 {"name":"Bryant Street", "vacancy":""}];
 	} else {
 		arr = [{"name":"Hotel Delany", "vacancy":""},
-					 {"name":"Darby Street", "vacancy":""}];
+		  	{"name":"Darby Street", "vacancy":""}];
 	}
 	return arr;
 }
