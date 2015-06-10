@@ -15,26 +15,16 @@ var async = require('async');
 var dateHelper = require("./date-helper");
 
 var APIKEY = ''; // <==== ADD API KEY HERE
-var PAZONES = 3;
-var NEWCZONES = 2;
+var NUMBER_OF_ZONES = 2;
 
-// Function that instantiates a table of GPS coordinates for parking spots
-function makeTable() {
-  makeSensorTable(function(response) {
-    process.config.table = response;
-  })
-};
-makeTable();
-
-
-app.set('port', process.env.PORT || 8001);
+app.set('port', process.env.PORT || 8000);
 
 app.get('/', function(req, res) {
   res.status(200).send("<b> Welcome to the homepage. <b>");
 });
 
 
-app.get('/data', function(req, res) {
+app.post('/data', function(req, res) {
 
   // Name of the button that the user has clicked
   var buttonName = req.headers.clickedname;
@@ -52,10 +42,18 @@ app.get('/data', function(req, res) {
 });
 
 
-app.get('/occupancies', function(req, res) {
+// Function that instantiates a table of GPS coordinates for parking spots
+function makeTable() {
+  makeSensorTable(function(response) {
+    process.config.table = response;
+  })
+};
+
+makeTable();
+
+app.post('/occupancies', function(req, res) {
   updateOccupancies(process.config.table, function(response) {
-    res.status(201).send(response);
-		console.log(response);
+		res.status(201).send(response);
   });
 });
 
@@ -70,7 +68,7 @@ app.get('/occupancies', function(req, res) {
 function makeSensorTable(callback) {
 
   // Our resulting array
-  var coordArr = [];
+  var coordArr = {};
 
   var zone1 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/pa_1/?key=';
   var zone2 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/pa_2/?key=';
@@ -202,18 +200,16 @@ function makeVacancyOptionsArr(buttonName, start, end) {
   var optionsArr = [];
 
   if (buttonName === "pabutton") {
-    numberOfZones = PAZONES;
     newUrl = url.parse('http://api.landscape-computing.com/nboxws/rest' +
       '/v1/zone/pa_1/query/vacancy?' + start + end + '&key=' + APIKEY);
   } else if (buttonName === "newcbutton") {
-    numberOfZones = NEWCZONES;
     newUrl = url.parse('http://api.landscape-computing.com/nboxws/rest' +
       '/v1/zone/newc_1/query/vacancy?' + start + end + '&key=' + APIKEY);
   } else {
     console.log("Error reading button.");
   }
 
-  for (var i = 0; i < numberOfZones; i++) {
+  for (var i = 0; i < NUMBER_OF_ZONES; i++) {
     zones[i] = replaceWithZone(newUrl, i + 1); // Modifies querystring zone number
     optionsArr.push({
       uri: zones[i],
@@ -244,9 +240,6 @@ function makeDataStruct(button) {
       "vacancy": ""
     }, {
       "name": "Ramona Street",
-      "vacancy": ""
-    }, {
-      "name": "Bryant Street",
       "vacancy": ""
     }];
   } else {
