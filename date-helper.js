@@ -20,8 +20,8 @@ exports.makeStartDateString = function(date) {
   if (newHour === '-1') {
     newHour = '23';
   } else{
-    return 'startDate='+dateJSON.year+'-'+dateJSON.month+'-'+dateJSON.day+'T'+
-    (newHour.toString())+':'+dateJSON.mins+''+':'+dateJSON.secs+'&';
+    return 'startdate='+dateJSON.year+'-'+dateJSON.month+'-'+dateJSON.day+'T'+
+    (makeDoubleDigit(newHour))+':'+dateJSON.mins+''+':'+dateJSON.secs;
   }
   return null;
 }
@@ -40,6 +40,6 @@ var makeDateJSON= function(currentDate) {
     day: 	currentDate.getDate().toString(),
     hour: makeDoubleDigit(currentDate.getHours()),
     mins: makeDoubleDigit(currentDate.getMinutes()),
-    secs: currentDate.getSeconds().toString()
+    secs: makeDoubleDigit(currentDate.getSeconds())
   }
 }
