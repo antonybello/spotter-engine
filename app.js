@@ -14,15 +14,14 @@ var url = require('url');
 var async = require('async');
 var dateHelper = require("./date-helper");
 
-var APIKEY = ''; // <==== ADD API KEY HERE
+var APIKEY = '76e253a5c51ecf1dbf17e9ea6b9d6a2f'; // <==== ADD API KEY HERE
 var NUMBER_OF_ZONES = 2;
 
-app.set('port', process.env.PORT || 8000);
+app.set('port', process.env.PORT || 8001);
 
 app.get('/', function(req, res) {
   res.status(200).send("<b> Welcome to the homepage. <b>");
 });
-
 
 app.post('/data', function(req, res) {
 
@@ -37,10 +36,10 @@ app.post('/data', function(req, res) {
   var optionsArr = makeVacancyOptionsArr(buttonName, startDate, currentDate);
 
   makeZoneVacancyCalls(optionsArr, buttonName, function(response) {
+    console.log("zone vacancy request made");
     res.status(201).send(response);
   });
 });
-
 
 // Function that instantiates a table of GPS coordinates for parking spots
 function makeTable() {
@@ -52,7 +51,10 @@ function makeTable() {
 makeTable();
 
 app.post('/occupancies', function(req, res) {
-  updateOccupancies(process.config.table, function(response) {
+
+  var cityName = req.headers.city;
+
+  updateOccupancies(process.config.table, cityName, function(response) {
 		res.status(201).send(response);
   });
 });
@@ -70,11 +72,21 @@ function makeSensorTable(callback) {
   // Our resulting array
   var coordArr = {};
 
-  var zone1 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/pa_1/?key=';
-  var zone2 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/pa_2/?key=';
+  var pa_zone1 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/pa_1/?key=';
+  var pa_zone2 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/pa_2/?key=';
+  var lg_zone1 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/lg_1/?key=';
+  var lg_zone2 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/lg_2/?key=';
+  var lg_zone3 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/lg_3/?key=';
+  var lg_zone4 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/lg_4/?key=';
 
-  var optionsArr = [{uri: zone1 + APIKEY, json: true},
-		 								{uri: zone2 + APIKEY, json: true}];
+
+  var optionsArr = [{uri: pa_zone1 + APIKEY, json: true},
+		 								{uri: pa_zone2 + APIKEY, json: true},
+                    {uri: lg_zone1 + APIKEY, json: true},
+                    {uri: lg_zone2 + APIKEY, json: true},
+                    {uri: lg_zone3 + APIKEY, json: true},
+                    {uri: lg_zone4 + APIKEY, json: true}
+                  ];
 
   var fetch = function(option, cb) {
     request(option, function(err, response, body) {
@@ -91,9 +103,9 @@ function makeSensorTable(callback) {
     if (err) {
       callback(err);
     } else {
-
       // Each zone is an array of sensors, and each sensor has an array of coords
-      var zones = [results[0].sensorId, results[1].sensorId];
+      var zones = [results[0].sensorId, results[1].sensorId, results[2].sensorId,
+                  results[3].sensorId, results[4].sensorId, results[5].sensorId];
       var coordinates, latLong, lati, longi, sensorId;
 
       for (var sensors of zones) {
@@ -107,6 +119,7 @@ function makeSensorTable(callback) {
             long: longi,
             occupancy: ""
           };
+          console.log(sensorId + ' ' + coordArr[sensorId]);
         }
       }
       callback(coordArr)
@@ -122,9 +135,17 @@ function makeSensorTable(callback) {
 *
 * Returns updated array.
 */
-function updateOccupancies(coordArr, callback) {
-  var url = 'http://api.landscape-computing.com/nboxws/rest/v1/site/' +
-    'pa/query/summary/?key=';
+function updateOccupancies(coordArr, city, callback) {
+
+  var url;
+
+  if (city === 'Palo Alto') {
+    url = 'http://api.landscape-computing.com/nboxws/rest/v1/site/' +
+      'pa/query/summary/?key=';
+  } else {
+    url = 'http://api.landscape-computing.com/nboxws/rest/v1/site/' +
+      'lg/query/summary/?key=';
+  }
 
   request(url + APIKEY, function(err, response, body) {
 	 if(err) {
