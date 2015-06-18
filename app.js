@@ -55,7 +55,7 @@ app.post('/occupancies', function(req, res) {
   var cityName = req.headers.city;
 
   updateOccupancies(process.config.table, cityName, function(response) {
-		res.status(201).send(response);
+    res.status(201).send(response);
   });
 });
 
@@ -80,13 +80,25 @@ function makeSensorTable(callback) {
   var lg_zone4 = 'http://api.landscape-computing.com/nboxws/rest/v1/zone/lg_4/?key=';
 
 
-  var optionsArr = [{uri: pa_zone1 + APIKEY, json: true},
-		 								{uri: pa_zone2 + APIKEY, json: true},
-                    {uri: lg_zone1 + APIKEY, json: true},
-                    {uri: lg_zone2 + APIKEY, json: true},
-                    {uri: lg_zone3 + APIKEY, json: true},
-                    {uri: lg_zone4 + APIKEY, json: true}
-                  ];
+  var optionsArr = [{
+    uri: pa_zone1 + APIKEY,
+    json: true
+  }, {
+    uri: pa_zone2 + APIKEY,
+    json: true
+  }, {
+    uri: lg_zone1 + APIKEY,
+    json: true
+  }, {
+    uri: lg_zone2 + APIKEY,
+    json: true
+  }, {
+    uri: lg_zone3 + APIKEY,
+    json: true
+  }, {
+    uri: lg_zone4 + APIKEY,
+    json: true
+  }];
 
   var fetch = function(option, cb) {
     request(option, function(err, response, body) {
@@ -105,7 +117,8 @@ function makeSensorTable(callback) {
     } else {
       // Each zone is an array of sensors, and each sensor has an array of coords
       var zones = [results[0].sensorId, results[1].sensorId, results[2].sensorId,
-                  results[3].sensorId, results[4].sensorId, results[5].sensorId];
+        results[3].sensorId, results[4].sensorId, results[5].sensorId
+      ];
       var coordinates, latLong, lati, longi, sensorId;
 
       for (var sensors of zones) {
@@ -129,12 +142,12 @@ function makeSensorTable(callback) {
 
 
 /*
-* Updates the occupancies of each sensor in the sensor table.
-*
-* @param coordArr => Associative array of sensors by their ID's
-*
-* Returns updated array.
-*/
+ * Updates the occupancies of each sensor in the sensor table.
+ *
+ * @param coordArr => Associative array of sensors by their ID's
+ *
+ * Returns updated array.
+ */
 function updateOccupancies(coordArr, city, callback) {
 
   var url;
@@ -148,21 +161,21 @@ function updateOccupancies(coordArr, city, callback) {
   }
 
   request(url + APIKEY, function(err, response, body) {
-	 if(err) {
-		callback(new Error('Error parsing occupancies'));
-	} else {
-    var res = body.split("|");
-    res.shift();
-    res.pop();
-    for (var i = 0; i < res.length; i++) {
-      var splitRes = res[i].split(":");
-      var sensorId = splitRes[0]; // Get the ID
-      var occupancy = splitRes[1].split(" ")[1]; // Check sensor's occupancy
-      if (coordArr[sensorId] !== undefined) {
-        coordArr[sensorId].occupancy = occupancy; // Add occupancy field to mapped sensor
+    if (err) {
+      callback(new Error('Error parsing occupancies'));
+    } else {
+      var res = body.split("|");
+      res.shift();
+      res.pop();
+      for (var i = 0; i < res.length; i++) {
+        var splitRes = res[i].split(":");
+        var sensorId = splitRes[0]; // Get the ID
+        var occupancy = splitRes[1].split(" ")[1]; // Check sensor's occupancy
+        if (coordArr[sensorId] !== undefined) {
+          coordArr[sensorId].occupancy = occupancy; // Add occupancy field to mapped sensor
+        }
       }
     }
-	}
     return callback(coordArr);
   });
 }
