@@ -14,7 +14,7 @@ var url = require('url');
 var async = require('async');
 var dateHelper = require("./date-helper");
 
-var APIKEY = '76e253a5c51ecf1dbf17e9ea6b9d6a2f'; // <==== ADD API KEY HERE
+var APIKEY = ''; // <==== ADD API KEY HERE
 var NUMBER_OF_ZONES = 2;
 
 app.set('port', process.env.PORT || 8001);
